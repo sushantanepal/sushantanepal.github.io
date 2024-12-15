@@ -1,7 +1,7 @@
 // Initialize the map
 const map = L.map('map', {
-  center: [27.700769, 85.300140], // Kathmandu, Nepal (adjust to your preferred location)
-  zoom: 13
+  center: [27.700769, 85.300140], // Kathmandu, Nepal
+  zoom: 7 // Adjust zoom to fit the national boundary
 });
 
 // Define OpenStreetMap layer
@@ -18,10 +18,8 @@ const googleMapsLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y
 osmLayer.addTo(map);
 
 // Handle layer switching
-let isOSMActive = true; // Track the active layer
+let isOSMActive = true;
 const toggleButton = document.getElementById('toggleButton');
-
-// Add event listener to the toggle button
 toggleButton.addEventListener('click', () => {
   if (isOSMActive) {
     map.removeLayer(osmLayer);
@@ -32,5 +30,29 @@ toggleButton.addEventListener('click', () => {
     map.addLayer(osmLayer);
     toggleButton.textContent = 'Switch to Google Maps';
   }
-  isOSMActive = !isOSMActive; // Toggle the layer state
+  isOSMActive = !isOSMActive;
 });
+
+// Load Nepal national boundary GeoJSON
+fetch('nepal_boundary.geojson')
+  .then(response => response.json())
+  .then(geojsonData => {
+    // Add the boundary to the map
+    const boundaryLayer = L.geoJSON(geojsonData, {
+      style: {
+        color: '#FF0000', // Red color for the boundary
+        weight: 0.5, // 0.5mm equivalent in Leaflet
+        opacity: 1
+      }
+    });
+
+    // Add the boundary layer to the map
+    boundaryLayer.addTo(map);
+
+    // Adjust map view to fit the boundary
+    map.fitBounds(boundaryLayer.getBounds());
+  })
+  .catch(error => {
+    console.error('Error loading GeoJSON:', error);
+  });
+
