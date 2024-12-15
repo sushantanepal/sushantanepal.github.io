@@ -1,3 +1,0 @@
-# sushantanepal.github.io
-
-hello
