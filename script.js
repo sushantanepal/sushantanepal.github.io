@@ -48,7 +48,7 @@ fetch('watersheds.geojson')
       watershedSelect.appendChild(option);
     });
 
-    // Enable the Submit button when a watershed is selected
+ // Enable the Submit button when a watershed is selected
     watershedSelect.addEventListener('change', () => {
       document.getElementById('submit-btn').disabled = false;
     });
@@ -58,13 +58,32 @@ fetch('watersheds.geojson')
       const selectedWatershed = document.getElementById('watershed-select').value;
 
       // Find the selected watershed's geometry
-      const selectedFeature = watershedsData.features.find(
+      const selectedFeature = watershedData.features.find(
         f => f.properties.BASIN_NAME === selectedWatershed
       );
 
-      // Zoom to the watershed's bounds
-      const selectedLayer = L.geoJSON(selectedFeature);
-      map.fitBounds(selectedLayer.getBounds());
+      if (selectedFeature) {
+        const selectedLayer = L.geoJSON(selectedFeature, {
+          style: {
+            color: '#ff7800',
+            weight: 1, // Boundary line thickness
+            fillOpacity: 0 // Fully transparent fill
+          }
+        });
+
+        // Add the selected layer to the map
+        selectedLayer.addTo(map);
+
+        // Zoom to the watershed's bounds
+        map.fitBounds(selectedLayer.getBounds());
+
+        // Optionally, you can clear previous layers after zooming
+        map.eachLayer(function(layer) {
+          if (layer !== selectedLayer) {
+            map.removeLayer(layer);
+          }
+        });
+      }
     });
   })
   .catch(error => {
