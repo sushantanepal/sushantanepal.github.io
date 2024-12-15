@@ -41,8 +41,8 @@ fetch('nepal-boundary.geojson')
     const boundaryLayer = L.geoJSON(geojsonData, {
       style: {
         color: '#000000',
-        weight: 5,
-        opacity: 1
+        weight: 1,
+        opacity: 0.5
       }
     });
 
