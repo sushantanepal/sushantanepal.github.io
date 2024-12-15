@@ -34,7 +34,7 @@ toggleButton.addEventListener('click', () => {
 });
 
 // Load Nepal national boundary GeoJSON
-fetch('nepal_boundary.geojson')
+fetch('nepal-boundary.geojson')
   .then(response => response.json())
   .then(geojsonData => {
     // Add the boundary to the map
