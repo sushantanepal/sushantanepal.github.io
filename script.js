@@ -43,7 +43,7 @@ Promise.all([
   municipalitiesLayer = L.geoJSON(municipalitiesData);
 
   // Populate the province dropdown
-  const provinceSelect = document.getElementById('province-select');
+  const provinceSelect = document.getElementById('ADM1_EN');
   const uniqueProvinces = [...new Set(provincesData.features.map(f => f.properties.name))];
   uniqueProvinces.forEach(province => {
     const option = document.createElement('option');
