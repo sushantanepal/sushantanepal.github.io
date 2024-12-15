@@ -40,7 +40,7 @@ fetch('nepal-boundary.geojson')
     // Add the boundary to the map
     const boundaryLayer = L.geoJSON(geojsonData, {
       style: {
-        color: '#FF0000', // Red color for the boundary
+        color: '#000000', // Red color for the boundary
         weight: 0.5, // 0.5mm equivalent in Leaflet
         opacity: 1
       }
