@@ -42,7 +42,8 @@ fetch('nepal-boundary.geojson')
       style: {
         color: '#000000',
         weight: 0.5,
-        opacity: 0.5
+        opacity: 1,
+        fillOpacity: 0
       }
     });
 
@@ -51,6 +52,12 @@ fetch('nepal-boundary.geojson')
 
     // Adjust map view to fit the boundary
     map.fitBounds(boundaryLayer.getBounds());
+  })
+  .catch(error => {
+    console.error('Error loading GeoJSON:', error);
+  });
+
+    map.getContainer().style.cursor = 'default'; // Arrow cursor
   })
   .catch(error => {
     console.error('Error loading GeoJSON:', error);
