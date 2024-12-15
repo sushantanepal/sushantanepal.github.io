@@ -9,6 +9,25 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
+// Add floating filter panel inside the map container
+const filterPanel = L.DomUtil.create('div', 'filter-panel');
+filterPanel.innerHTML = `
+  <select id="province-select">
+    <option value="" disabled selected>Select Province</option>
+  </select>
+  <select id="district-select" disabled>
+    <option value="" disabled selected>Select District</option>
+  </select>
+  <select id="municipality-select" disabled>
+    <option value="" disabled selected>Select Municipality</option>
+  </select>
+  <button id="submit-btn" disabled>Submit</button>
+`;
+map.getContainer().appendChild(filterPanel);
+
+// Disable map interactions for the panel
+L.DomEvent.disableClickPropagation(filterPanel);
+
 // Global variables for GeoJSON layers
 let provincesLayer, districtsLayer, municipalitiesLayer;
 
