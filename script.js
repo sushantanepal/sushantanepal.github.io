@@ -45,6 +45,7 @@ fetch('nepal-boundary.geojson')
         opacity: 1,
         fillOpacity: 0
       }
+       interactive: false
     });
 
     // Add the boundary layer to the map
