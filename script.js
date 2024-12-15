@@ -15,11 +15,8 @@ filterPanel.innerHTML = `
   <select id="province-select">
     <option value="" disabled selected>Select Province</option>
   </select>
-  <select id="district-select" disabled>
-    <option value="" disabled selected>Select District</option>
-  </select>
-  <select id="municipality-select" disabled>
-    <option value="" disabled selected>Select Municipality</option>
+  <select id="watershed-select" disabled>
+    <option value="" disabled selected>Select Watershed</option>
   </select>
   <button id="submit-btn" disabled>Submit</button>
 `;
@@ -29,21 +26,19 @@ map.getContainer().appendChild(filterPanel);
 L.DomEvent.disableClickPropagation(filterPanel);
 
 // Global variables for GeoJSON layers
-let provincesLayer, districtsLayer, municipalitiesLayer;
+let provincesLayer, watershedsLayer;
 
-// Load GeoJSON files for provinces, districts, and municipalities
+// Load GeoJSON files for provinces and watersheds
 Promise.all([
   fetch('provinces.geojson').then(res => res.json()),
-  fetch('districts.geojson').then(res => res.json()),
-  fetch('municipalities.geojson').then(res => res.json())
-]).then(([provincesData, districtsData, municipalitiesData]) => {
-  // Add layers to the map for provinces, districts, and municipalities
+  fetch('watersheds.geojson').then(res => res.json())
+]).then(([provincesData, watershedsData]) => {
+  // Add province layer to the map
   provincesLayer = L.geoJSON(provincesData);
-  districtsLayer = L.geoJSON(districtsData);
-  municipalitiesLayer = L.geoJSON(municipalitiesData);
+  watershedsLayer = L.geoJSON(watershedsData);
 
   // Populate the province dropdown
-  const provinceSelect = document.getElementById('ADM1_EN');
+  const provinceSelect = document.getElementById('province-select');
   const uniqueProvinces = [...new Set(provincesData.features.map(f => f.properties.name))];
   uniqueProvinces.forEach(province => {
     const option = document.createElement('option');
@@ -52,66 +47,43 @@ Promise.all([
     provinceSelect.appendChild(option);
   });
 
-  // Enable district selection when a province is selected
+  // Enable watershed selection when a province is selected
   provinceSelect.addEventListener('change', () => {
     const selectedProvince = provinceSelect.value;
 
-    // Filter districts by province
-    const filteredDistricts = districtsData.features.filter(
+    // Filter watersheds by province
+    const filteredWatersheds = watershedsData.features.filter(
       f => f.properties.province_name === selectedProvince
     );
 
-    const districtSelect = document.getElementById('district-select');
-    districtSelect.innerHTML = '<option value="" disabled selected>Select District</option>';
-    filteredDistricts.forEach(district => {
+    const watershedSelect = document.getElementById('watershed-select');
+    watershedSelect.innerHTML = '<option value="" disabled selected>Select Watershed</option>';
+    filteredWatersheds.forEach(watershed => {
       const option = document.createElement('option');
-      option.value = district.properties.name;
-      option.textContent = district.properties.name;
-      districtSelect.appendChild(option);
+      option.value = watershed.properties.name;
+      option.textContent = watershed.properties.name;
+      watershedSelect.appendChild(option);
     });
 
-    districtSelect.disabled = false;
-    document.getElementById('municipality-select').disabled = true;
+    watershedSelect.disabled = false;
     document.getElementById('submit-btn').disabled = true;
   });
 
-  // Enable municipality selection when a district is selected
-  document.getElementById('district-select').addEventListener('change', () => {
-    const selectedDistrict = document.getElementById('district-select').value;
-
-    // Filter municipalities by district
-    const filteredMunicipalities = municipalitiesData.features.filter(
-      f => f.properties.district_name === selectedDistrict
-    );
-
-    const municipalitySelect = document.getElementById('municipality-select');
-    municipalitySelect.innerHTML = '<option value="" disabled selected>Select Municipality</option>';
-    filteredMunicipalities.forEach(municipality => {
-      const option = document.createElement('option');
-      option.value = municipality.properties.name;
-      option.textContent = municipality.properties.name;
-      municipalitySelect.appendChild(option);
-    });
-
-    municipalitySelect.disabled = false;
-    document.getElementById('submit-btn').disabled = true;
-  });
-
-  // Enable the Submit button when a municipality is selected
-  document.getElementById('municipality-select').addEventListener('change', () => {
+  // Enable the Submit button when a watershed is selected
+  document.getElementById('watershed-select').addEventListener('change', () => {
     document.getElementById('submit-btn').disabled = false;
   });
 
-  // Zoom to selected municipality on Submit
+  // Zoom to selected watershed on Submit
   document.getElementById('submit-btn').addEventListener('click', () => {
-    const selectedMunicipality = document.getElementById('municipality-select').value;
+    const selectedWatershed = document.getElementById('watershed-select').value;
 
-    // Find the selected municipality's geometry
-    const selectedFeature = municipalitiesData.features.find(
-      f => f.properties.name === selectedMunicipality
+    // Find the selected watershed's geometry
+    const selectedFeature = watershedsData.features.find(
+      f => f.properties.name === selectedWatershed
     );
 
-    // Zoom to the municipality's bounds
+    // Zoom to the watershed's bounds
     const selectedLayer = L.geoJSON(selectedFeature);
     map.fitBounds(selectedLayer.getBounds());
   });
