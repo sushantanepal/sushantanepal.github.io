@@ -1,7 +1,7 @@
 // Initialize the map
 const map = L.map('map', {
   center: [27.700769, 85.300140], // Kathmandu, Nepal
-  zoom: 10 // Adjust zoom to fit the national boundary
+  zoom: 11 // Adjust zoom to fit the national boundary
 });
 
 // Define OpenStreetMap layer
