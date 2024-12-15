@@ -57,10 +57,3 @@ fetch('nepal-boundary.geojson')
   .catch(error => {
     console.error('Error loading GeoJSON:', error);
   });
-
-    map.getContainer().style.cursor = 'default'; // Arrow cursor
-  })
-  .catch(error => {
-    console.error('Error loading GeoJSON:', error);
-  });
-
