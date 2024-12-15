@@ -1,81 +1,54 @@
 // Initialize the map
-const map = L.map('map', {
-  center: [27.7, 85.3], // Center of Nepal
-  zoom: 7
-});
+const map = L.map('map').setView([27.7, 85.3], 8);
+const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+const basemapLayers = {
+  'OpenStreetMap': osmLayer,
+  'Google Maps': L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+  })
+};
+L.control.layers(basemapLayers).addTo(map);
 
-// Add OpenStreetMap layer
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-// Add floating filter panel inside the map container
-const filterPanel = L.DomUtil.create('div', 'filter-panel');
-filterPanel.innerHTML = `
-  <select id="watershed-select">
-    <option value="" disabled selected>Select Watershed</option>
-  </select>
-  <button id="submit-btn" disabled>Submit</button>
-`;
-map.getContainer().appendChild(filterPanel);
-
-// Disable map interactions for the panel
-L.DomEvent.disableClickPropagation(filterPanel);
-
-// Global variables
-let watershedLayer;
-let watershedsGeoJSON;
-
-// Load GeoJSON for watersheds
+// Load GeoJSON
 fetch('watersheds.geojson')
-  .then((res) => res.json())
-  .then((data) => {
-    watershedsGeoJSON = data;
-
-    // Populate the watershed dropdown
-    const watershedSelect = document.getElementById('watershed-select');
-    const uniqueWatersheds = [...new Set(data.features.map(f => f.properties.BASIN_NAME))];
-    uniqueWatersheds.forEach(watershed => {
-      const option = document.createElement('option');
-      option.value = watershed;
-      option.textContent = watershed;
-      watershedSelect.appendChild(option);
-    });
-
-    // Enable the Submit button when a watershed is selected
-    watershedSelect.addEventListener('change', () => {
-      document.getElementById('submit-btn').disabled = false;
-    });
-
-    // Zoom to the selected watershed on Submit
-    document.getElementById('submit-btn').addEventListener('click', () => {
-      const selectedWatershed = watershedSelect.value;
-
-      // Find the selected watershed's geometry
-      const selectedFeature = data.features.find(
-        f => f.properties.BASIN_NAME === selectedWatershed
-      );
-
-      if (selectedFeature) {
-        // Remove the previous layer (if it exists)
-        if (watershedLayer) {
-          map.removeLayer(watershedLayer);
-        }
-
-        // Add the selected watershed to the map
-        watershedLayer = L.geoJSON(selectedFeature, {
-          style: {
-            color: '#ff7800',
-            weight: 1, // Boundary line thickness
-            fillOpacity: 0 // Fully transparent fill
-          }
-        }).addTo(map);
-
-        // Zoom to the selected watershed
-        map.fitBounds(watershedLayer.getBounds());
+  .then(response => response.json())
+  .then(data => {
+    const dropdown = document.getElementById('basinDropdown');
+    const geoJsonLayer = L.geoJSON(data, {
+      onEachFeature: (feature, layer) => {
+        dropdown.add(new Option(feature.properties.BASIN_NAME, feature.properties.BASIN_NAME));
+        layer.bindPopup(feature.properties.BASIN_NAME);
       }
     });
-  })
-  .catch((error) => {
-    console.error('Error loading GeoJSON data:', error);
+    geoJsonLayer.addTo(map);
   });
+
+// Handle form submission
+document.getElementById('submitButton').onclick = async () => {
+  const dateBefore1 = document.getElementById('dateBefore1').value;
+  const dateBefore2 = document.getElementById('dateBefore2').value;
+  const dateAfter1 = document.getElementById('dateAfter1').value;
+  const dateAfter2 = document.getElementById('dateAfter2').value;
+  const selectedBasin = document.getElementById('basinDropdown').value;
+
+  if (!dateBefore1 || !dateBefore2 || !dateAfter1 || !dateAfter2 || !selectedBasin) {
+    alert('All inputs are required!');
+    return;
+  }
+
+  // Call the GEE function for flood mapping
+  document.getElementById('statusMessage').innerText = 'Fetching flood mapping data...';
+  const result = await performFloodMapping(selectedBasin, dateBefore1, dateBefore2, dateAfter1, dateAfter2);
+  
+  if (result.success) {
+    document.getElementById('statusMessage').innerText = `
+      Flood mapping complete:
+      - Watershed: ${result.watershed}
+      - Dates: ${result.dates.join(', ')}
+      - Blue Area (water bodies): ${result.blueArea} sq.km
+      - Yellow Area (inundated): ${result.yellowArea} sq.km
+    `;
+  } else {
+    document.getElementById('statusMessage').innerText = 'Flood mapping failed. See console for details.';
+  }
+};
