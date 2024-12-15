@@ -1,41 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flood Mapping Tool</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+    <title>Flood Mapping</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 </head>
 <body>
-  <div id="map"></div>
-
-  <!-- Floating control panel -->
-  <div class="control-panel">
-    <h3>Flood Mapping Tool</h3>
-    <label for="basinDropdown">Select Basin:</label>
-    <select id="basinDropdown"></select>
-    
-    <h4>Enter Dates</h4>
-    <label for="dateBefore1">Before 1:</label>
-    <input type="date" id="dateBefore1">
-    <label for="dateBefore2">Before 2:</label>
-    <input type="date" id="dateBefore2">
-    <label for="dateAfter1">After 1:</label>
-    <input type="date" id="dateAfter1">
-    <label for="dateAfter2">After 2:</label>
-    <input type="date" id="dateAfter2">
-
-    <button id="submitButton">Submit</button>
-  </div>
-
-  <!-- Notification Panel -->
-  <div class="notification" id="notification">
-    <p id="statusMessage">Waiting for user input...</p>
-  </div>
-
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  <script src="script.js"></script>
-  <script src="gee-functions.js"></script>
+    <div id="map"></div>
+    <div class="control-panel">
+        <h3>Select Basin</h3>
+        <select id="basinDropdown">
+            <option value="">Loading...</option>
+        </select>
+        <button id="submitBasin">Submit Basin</button>
+        <h3>Enter Dates</h3>
+        <label>Before Flood:</label><br>
+        <input type="date" id="dateBefore1" required> Date Before 1<br>
+        <input type="date" id="dateBefore2" required> Date Before 2<br><br>
+        <label>After Flood:</label><br>
+        <input type="date" id="dateAfter1" required> Date After 1<br>
+        <input type="date" id="dateAfter2" required> Date After 2<br><br>
+        <button id="submitDates">Submit</button>
+    </div>
+    <div id="notification" class="notification"></div>
+    <script src="app.js"></script>
 </body>
 </html>
